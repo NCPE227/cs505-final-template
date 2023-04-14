@@ -36,8 +36,8 @@ public class API {
         try {
             System.out.println("WHAT");
             Map<String,String> responseMap = new HashMap<>();
-            responseMap.put("team_name", "templateTeam");
-            responseMap.put("Team_members_sids", "[0]");
+            responseMap.put("team_name", "Basing the Data");
+            responseMap.put("Team_members_sids", "[12239795, 12272709, 12343798, 12296662]");
             responseMap.put("app_status_code","0");
 
             responseString = gson.toJson(responseMap);
@@ -80,4 +80,87 @@ public class API {
     }
 
 
+    /*
+     *  Set reset code so that the database tables can be dropped and recreated.
+     */
+    @GET
+    @Path("/reset")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response resetDatabase() {
+        String responseString = "{}";
+        try {
+
+            //generate a response
+            Map<String,String> responseMap = new HashMap<>();
+            responseMap.put("reset_status_code","1");
+            responseString = gson.toJson(responseMap);
+
+        } catch (Exception ex) {
+
+            StringWriter sw = new StringWriter();
+            ex.printStackTrace(new PrintWriter(sw));
+            String exceptionAsString = sw.toString();
+            ex.printStackTrace();
+
+            return Response.status(500).entity(exceptionAsString).build();
+        }
+        return Response.ok(responseString).header("Access-Control-Allow-Origin", "*").build();
+    }
+
+
+    /*
+     *  Get a zipped list of all zipcodes currently experiencing alert status.
+     */
+    @GET
+    @Path("/zipalertlist")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAlertList() {
+        String responseString = "{}";
+        try {
+
+            //generate a response
+            Map<String,String> responseMap = new HashMap<>();
+            responseMap.put("ziplist",Launcher.zipAlertList);
+            responseString = gson.toJson(responseMap);
+
+        } catch (Exception ex) {
+
+            StringWriter sw = new StringWriter();
+            ex.printStackTrace(new PrintWriter(sw));
+            String exceptionAsString = sw.toString();
+            ex.printStackTrace();
+
+            return Response.status(500).entity(exceptionAsString).build();
+        }
+        return Response.ok(responseString).header("Access-Control-Allow-Origin", "*").build();
+    }
+
+
+    /*
+     *  Set reset code so that the database tables can be dropped and recreated.
+     */
+    @GET
+    @Path("/alertlist")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response alertList() {
+        String responseString = "{}";
+        try {
+
+            //generate a response
+            Map<String,String> responseMap = new HashMap<>();
+            responseMap.put("state_status", Launcher.stateStatus);
+            responseString = gson.toJson(responseMap);
+
+        } catch (Exception ex) {
+
+            StringWriter sw = new StringWriter();
+            ex.printStackTrace(new PrintWriter(sw));
+            String exceptionAsString = sw.toString();
+            ex.printStackTrace();
+
+            return Response.status(500).entity(exceptionAsString).build();
+        }
+        return Response.ok(responseString).header("Access-Control-Allow-Origin", "*").build();
+    }
 }
+
