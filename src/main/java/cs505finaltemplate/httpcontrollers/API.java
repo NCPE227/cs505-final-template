@@ -2,6 +2,7 @@ package cs505finaltemplate.httpcontrollers;
 
 import com.google.gson.Gson;
 import cs505finaltemplate.Launcher;
+import cs505finaltemplate.graphDB.GraphDBEngine;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -38,11 +39,9 @@ public class API {
             Map<String,String> responseMap = new HashMap<>();
             responseMap.put("team_name", "Basing the Data");
             responseMap.put("Team_members_sids", "[12239795, 12272709, 12343798, 12296662]");
-            responseMap.put("app_status_code","0");
+            responseMap.put("app_status_code","1");
 
             responseString = gson.toJson(responseMap);
-
-
         } catch (Exception ex) {
 
             StringWriter sw = new StringWriter();
@@ -55,13 +54,13 @@ public class API {
         return Response.ok(responseString).header("Access-Control-Allow-Origin", "*").build();
     }
 
+
     @GET
     @Path("/getlastcep")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAccessCount(@HeaderParam("X-Auth-API-Key") String authKey) {
         String responseString = "{}";
         try {
-
             //generate a response
             Map<String,String> responseMap = new HashMap<>();
             responseMap.put("lastoutput",Launcher.lastCEPOutput);
@@ -80,19 +79,16 @@ public class API {
     }
 
 
-    /*
-     *  Set reset code so that the database tables can be dropped and recreated.
-     */
     @GET
     @Path("/reset")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response resetDatabase() {
+    public Response reset() {
         String responseString = "{}";
         try {
-
-            //generate a response
-            Map<String,String> responseMap = new HashMap<>();
-            responseMap.put("reset_status_code","1");
+            
+            int result = GraphDBEngine.reset();
+            Map<String,Integer> responseMap = new HashMap<>();
+            responseMap.put("reset_status_code", result);
             responseString = gson.toJson(responseMap);
 
         } catch (Exception ex) {
@@ -149,6 +145,33 @@ public class API {
             //generate a response
             Map<String,String> responseMap = new HashMap<>();
             responseMap.put("state_status", Launcher.stateStatus);
+            responseString = gson.toJson(responseMap);
+
+        } catch (Exception ex) {
+
+            StringWriter sw = new StringWriter();
+            ex.printStackTrace(new PrintWriter(sw));
+            String exceptionAsString = sw.toString();
+            ex.printStackTrace();
+
+            return Response.status(500).entity(exceptionAsString).build();
+        }
+        return Response.ok(responseString).header("Access-Control-Allow-Origin", "*").build();
+    }
+
+    /*
+     *  Accepts patient mrn and finds possible contacts
+     */
+    @GET
+    @Path("/getconfirmedcontacts/{mrn}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getConfirmedContacts() {
+        String responseString = "{}";
+        try {
+
+            //generate a response
+            Map<String,String> responseMap = new HashMap<>();
+            responseMap.put("contact_list", Launcher.contactList);
             responseString = gson.toJson(responseMap);
 
         } catch (Exception ex) {

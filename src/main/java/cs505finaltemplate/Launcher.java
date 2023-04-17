@@ -45,7 +45,7 @@ public class Launcher {
         //This query must be modified.  Currently, it provides the last zip_code and total count
         //You want counts per zip_code, to say another way "grouped by" zip_code
         String queryString = " " +
-                "from testInStream#window.timeBatch(5 sec) " +
+                "from testInStream#window.timeBatch(15 sec) " +
                 "select zip_code, count() as count " +
                 "insert into testOutStream; ";
 
@@ -56,11 +56,11 @@ public class Launcher {
 
         //start message collector
         Map<String,String> message_config = new HashMap<>();
-        message_config.put("hostname",""); //Fill config for your team in
-        message_config.put("port",""); //
-        message_config.put("username","");
-        message_config.put("password","");
-        message_config.put("virtualhost","");
+        message_config.put("hostname","vbu231.cs.uky.edu");
+        message_config.put("port","9099");
+        message_config.put("username","team_15");
+        message_config.put("password","myPassCS505");
+        message_config.put("virtualhost","15");
 
         topicConnector = new TopicConnector(message_config);
         topicConnector.connect();
