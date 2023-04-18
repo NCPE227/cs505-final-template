@@ -26,11 +26,10 @@ public class Launcher {
 
     public static void main(String[] args) throws IOException {
 
-
         //startig DB/CEP init
 
         //READ CLASS COMMENTS BEFORE USING
-        //graphDBEngine = new GraphDBEngine();
+        graphDBEngine = new GraphDBEngine();
 
         cepEngine = new CEPEngine();
 
@@ -47,7 +46,7 @@ public class Launcher {
         String queryString = " " +
                 "from testInStream#window.timeBatch(15 sec) " +
                 "select zip_code, count() as count " +
-                "group by zip_code " +
+                "group by zip_code " +                  // <-- Query modification mentioned above
                 "insert into testOutStream; ";
 
         cepEngine.createCEP(inputStreamName, outputStreamName, inputStreamAttributesString, outputStreamAttributesString, queryString);
