@@ -70,7 +70,7 @@ public class GraphDBEngine {
         return true;
     }
 
-    //Accepts a hospital data object and a patient vertex and builds an edge between then patient and hospitala
+    //Accepts a hospital data object and a patient vertex and builds an edge between then patient and hospital
     private static void PatientToHospital(ODatabaseSession db, Hospital data, OVertex patient) {
         //Add hospital to database
         Optional<OVertex> newHospital = getHospitalByID(db, data.hospital_id);
@@ -86,7 +86,88 @@ public class GraphDBEngine {
         edge.save();
     }
 
-    //This creates a new patient vertex, it does not include the contact_list or event_list field because those will need to be calculated and updated later
+    //Accepts a vaccination data object and a patient vertex and updates the patient with vaccination information
+    private static void updatePatientVaccines(ODatabaseSession db, Vaccination data, OVertex patient) {
+        //Add vaccination facility to database
+        Optional<OVertex> newFacility = getHospitalByID(db, data.vaccination_id);
+        OVertex facility = null;
+
+        if (newFacility.isPresent()) //if the vaccination facility exists, then we simply get the relevant information
+            facility = newFacility.get();
+        else                         //if the vaccination facility does not exist, we create a new one using the information in the Vaccination object
+            facility = createVaccinationFacility(db, data.vaccination_id);
+
+        //Update patient with vaccination information
+        patient.setProperty("vaccination_date", data.vaccination_date);
+        patient.setProperty("vaccination_type", data.vaccination_type);
+        patient.addEdge(facility, "patient_to_vaccination_facility");
+    }
+
+    private static OVertex updatePatient(PatientData patientData, OVertex patient) {
+        patient.setProperty("patient_name", patientData.patient_name);
+        patient.setProperty("patient_zipcode", patientData.patient_zipcode);
+        patient.setProperty("patient_covid_status", patientData.patient_status);
+        patient.setProperty("testing_id", patientData.testing_id);
+        patient.save();
+        return patient;
+    }
+
+    private static OVertex updatePatient(HospitalData hospitalData, OVertex patient) {
+        patient.setProperty("patient_name", hospitalData.patient_name);
+        patient.setProperty("hospital_id", hospitalData.hospital_id);
+        patient.setProperty("patient_hospital_status", hospitalData.patient_status);
+        patient.save();
+        return patient;
+    }
+
+    private static OVertex updatePatient(VaccinationData vaccinationData, OVertex patient) {
+        patient.setProperty("patient_name", vaccinationData.patient_name);
+        patient.setProperty("vaccination_id", vaccinationData.vaccination_id);
+        patient.setProperty("patient_vaccination_status", 1);
+        patient.save();
+        return patient;
+    }
+
+    private static void addContactsToPatient(ODatabaseSession db, PatientData patientData, OVertex patient) {
+            Map<String, Integer> seenContacts = new HashMap<>();
+            for (String contact : patientData.contactList) {
+                if (!seenContacts.containsKey(contact)) {
+                    seenContacts.put(contact, 1);
+                    //Add the contact patient to the database
+                    Optional<OVertex> tempContact = getPatientByMRN(db, contact);
+                    OVertex vContact = null;
+                    if (tempContact.isPresent())
+                        vContact = tempContact.get();
+                    else
+                        vContact = createPatient(db, contact);
+
+                    //Draw an edge between the patient and the contact
+                    OEdge edge = patient.addEdge(vContact, "patient_to_patient");
+                    edge.save();
+                }
+
+            }
+        }
+
+    private static void createPatientEventEdges(ODatabaseSession db, PatientData patientData, OVertex patientVertex) {
+        Map<String, Integer> seenEvents = new HashMap<>(); // keep track of seen events to prevent duplicates
+        for (String event : patientData.event_list) {
+            if (!seenEvents.containsKey(event)) { // if we haven't already seen this event
+                seenEvents.put(event, 1);
+                Optional<OVertex> eventVertexOptional = getEventByID(db, event); // check if event already exists in database
+                OVertex eventVertex = null;
+                if (eventVertexOptional.isPresent())
+                    eventVertex = eventVertexOptional.get();
+                else
+                    eventVertex = createEvent(db, event); // create new event vertex if it doesn't exist
+
+                OEdge edge = patientVertex.addEdge(eventVertex, "patient_to_event"); // create edge between patient and event
+                edge.save(); // save edge to database
+            }
+        }
+    }
+
+
     private OVertex createPatient(ODatabaseSession db, Integer testing_id, String patient_name, String patient_mrn, Boolean patient_status) {
         OVertex result = db.newVertex("patient");
         result.setProperty("testing_id", testing_id);
@@ -437,6 +518,13 @@ public class GraphDBEngine {
         }
         
     }
+
+
+
+
+
+
+
 
     //Builds the database architecture needed to insert data using the createX functions which are written above.
     private static void build(ODatabaseSession db) {
