@@ -35,6 +35,11 @@ public class GraphDBEngine {
 
         //use the orientdb dashboard to create a new database
         //see class notes for how to use the dashboard
+        OrientDB client = new OrientDB("remote:localhost", user, pass, OrientDBConfig.defaultConfig());
+
+        // Reset database and start new one
+        resetDB(client);
+        client.close();
 
     }
 
