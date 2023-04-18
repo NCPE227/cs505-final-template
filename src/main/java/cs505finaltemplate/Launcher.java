@@ -47,6 +47,7 @@ public class Launcher {
         String queryString = " " +
                 "from testInStream#window.timeBatch(15 sec) " +
                 "select zip_code, count() as count " +
+                "group by zip_code " +
                 "insert into testOutStream; ";
 
         cepEngine.createCEP(inputStreamName, outputStreamName, inputStreamAttributesString, outputStreamAttributesString, queryString);
