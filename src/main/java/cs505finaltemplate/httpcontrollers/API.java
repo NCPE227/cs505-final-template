@@ -8,12 +8,14 @@ import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Path("/api")
@@ -116,7 +118,7 @@ public class API {
 
             //generate a response
             Map<String,String> responseMap = new HashMap<>();
-            responseMap.put("ziplist",Launcher.zipAlertList);
+            responseMap.put("ziplist", GraphDBEngine.zipAlertList);
             responseString = gson.toJson(responseMap);
 
         } catch (Exception ex) {
@@ -144,7 +146,7 @@ public class API {
 
             //generate a response
             Map<String,String> responseMap = new HashMap<>();
-            responseMap.put("state_status", Launcher.stateStatus);
+            responseMap.put("state_status", GraphDBEngine.stateStatus);
             responseString = gson.toJson(responseMap);
 
         } catch (Exception ex) {
@@ -165,17 +167,94 @@ public class API {
     @GET
     @Path("/getconfirmedcontacts/{mrn}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getConfirmedContacts() {
+    public Response getConfirmedContacts(@PathParam("mrn") String mrn) {
+        String responseString = "{}";
+        try {
+
+            //generate a response
+            Map<String, List<String>> responseMap = new HashMap<>();
+            List<String> confirmedContacts = GraphDBEngine.getConfirmedContacts(mrn);
+
+            responseMap.put("contact-list", confirmedContacts)
+            responseString = gson.toJson(responseMap);
+
+        } catch (Exception ex) {
+
+            StringWriter sw = new StringWriter();
+            ex.printStackTrace(new PrintWriter(sw));
+            String exceptionAsString = sw.toString();
+            ex.printStackTrace();
+
+            return Response.status(500).entity(exceptionAsString).build();
+        }
+        return Response.ok(responseString).header("Access-Control-Allow-Origin", "*").build();
+    }
+
+    /*
+     *  Accepts patient mrn and finds possible contacts
+     */
+    @GET
+    @Path("/getpossiblecontacts/{mrn}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getPossibleContacts(@PathParam("mrn") String mrn) {
+        String responseString = "{}";
+        try {
+            Map<String, Map<String,List<String>>> responseMap = new HashMap<>();
+            Map<String, List<String>> result = GraphDBEngine.getPotentialContacts(mrn);
+            responseMap.put("contactlist", result);
+
+            responseString = gson.toJson(responseMap);
+        } catch (Exception ex) {
+            StringWriter sw = new StringWriter();
+            ex.printStackTrace(new PrintWriter(sw));
+            String exceptionAsString = sw.toString();
+            ex.printStackTrace();
+
+            return Response.status(500).entity(exceptionAsString).build();
+        }
+        return Response.ok(responseString).header("Access-Control-Allow-Origin", "*").build();
+    }
+
+    /*
+     *  Accepts patient mrn and finds possible contacts
+     */
+    @GET
+    @Path("/getpatientstatus/{hospital_id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getPatientStatusByHospitalID(@PathParam("hospital_id") Integer hospital_id) {
         String responseString = "{}";
         try {
 
             //generate a response
             Map<String,String> responseMap = new HashMap<>();
-            responseMap.put("contact_list", Launcher.contactList);
+            responseMap.put("contact_list", GraphDBEngine.contactList);
             responseString = gson.toJson(responseMap);
 
         } catch (Exception ex) {
 
+            StringWriter sw = new StringWriter();
+            ex.printStackTrace(new PrintWriter(sw));
+            String exceptionAsString = sw.toString();
+            ex.printStackTrace();
+
+            return Response.status(500).entity(exceptionAsString).build();
+        }
+        return Response.ok(responseString).header("Access-Control-Allow-Origin", "*").build();
+    }
+
+    /*
+     *  Accepts patient mrn and finds possible contacts
+     */
+    @GET
+    @Path("/getpatientstatus")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getPatientStatus() {
+        String responseString = "{}";
+        try {
+            HospitalStatus dataObj = GraphDBEngine.getPatientStatus();
+            responseString = gson.toJson(dataObj);
+            System.out.println(responseString);
+        } catch (Exception ex) {
             StringWriter sw = new StringWriter();
             ex.printStackTrace(new PrintWriter(sw));
             String exceptionAsString = sw.toString();
