@@ -2,6 +2,8 @@ package cs505finaltemplate.httpcontrollers;
 
 import com.google.gson.Gson;
 import cs505finaltemplate.Launcher;
+import cs505finaltemplate.CEP.OutputSubscriber;
+import cs505finaltemplate.Topics.HospitalStatusData;
 import cs505finaltemplate.graphDB.GraphDBEngine;
 
 import javax.inject.Inject;
@@ -106,23 +108,22 @@ public class API {
     }
 
 
+    
+    public static int[] alertZipList; //this is populated in OutputSubscriber.java
     /*
      *  Get a zipped list of all zipcodes currently experiencing alert status.
      */
     @GET
     @Path("/zipalertlist")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAlertList() {
+    public Response zipAlertList() {
         String responseString = "{}";
         try {
+            Map<String,int[]> responseMap = new HashMap<>();
+            responseMap.put("ziplist", alertZipList);
 
-            //generate a response
-            Map<String,String> responseMap = new HashMap<>();
-            responseMap.put("ziplist", GraphDBEngine.zipAlertList);
             responseString = gson.toJson(responseMap);
-
         } catch (Exception ex) {
-
             StringWriter sw = new StringWriter();
             ex.printStackTrace(new PrintWriter(sw));
             String exceptionAsString = sw.toString();
@@ -134,6 +135,7 @@ public class API {
     }
 
 
+    public static Integer numAlertedZips = 0; //this is populated in OutputSubscriber.java
     /*
      *  Set reset code so that the database tables can be dropped and recreated.
      */
@@ -143,14 +145,17 @@ public class API {
     public Response alertList() {
         String responseString = "{}";
         try {
-
-            //generate a response
-            Map<String,String> responseMap = new HashMap<>();
-            responseMap.put("state_status", GraphDBEngine.stateStatus);
+            Map<String, Integer> responseMap = new HashMap<>();
+            
+            if (numAlertedZips >= 5) { //Check if state is on alert
+                responseMap.put("state_status", 1); //Alert = 1, State is on alert
+            }
+            else {
+                responseMap.put("state_status", 0); //Alert = 0, State is not on alert
+            }
             responseString = gson.toJson(responseMap);
 
         } catch (Exception ex) {
-
             StringWriter sw = new StringWriter();
             ex.printStackTrace(new PrintWriter(sw));
             String exceptionAsString = sw.toString();
@@ -216,22 +221,19 @@ public class API {
     }
 
     /*
-     *  Accepts patient mrn and finds possible contacts
+     *  gets the status of patients in a specific hospital provided by hospital_id
      */
     @GET
     @Path("/getpatientstatus/{hospital_id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getPatientStatusByHospitalID(@PathParam("hospital_id") Integer hospital_id) {
-        String responseString = "{}";
+       String responseString = "{}";
         try {
-
-            //generate a response
-            Map<String,String> responseMap = new HashMap<>();
-            responseMap.put("contact_list", GraphDBEngine.contactList);
-            responseString = gson.toJson(responseMap);
+            HospitalStatusData dataObj = GraphDBEngine.getPatientStatusByHospitalID(hospital_id);
+            responseString = gson.toJson(dataObj);
+            System.out.println(responseString);
 
         } catch (Exception ex) {
-
             StringWriter sw = new StringWriter();
             ex.printStackTrace(new PrintWriter(sw));
             String exceptionAsString = sw.toString();
@@ -242,16 +244,14 @@ public class API {
         return Response.ok(responseString).header("Access-Control-Allow-Origin", "*").build();
     }
 
-    /*
-     *  Accepts patient mrn and finds possible contacts
-     */
+    //Gets the status of all patients regardless of hospital
     @GET
     @Path("/getpatientstatus")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getPatientStatus() {
         String responseString = "{}";
         try {
-            HospitalStatus dataObj = GraphDBEngine.getPatientStatus();
+            HospitalStatusData dataObj = GraphDBEngine.getPatientStatus();
             responseString = gson.toJson(dataObj);
             System.out.println(responseString);
         } catch (Exception ex) {

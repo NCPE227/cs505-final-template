@@ -38,7 +38,7 @@ public class OutputSubscriber implements InMemoryBroker.Subscriber {
 
             //Build Alert String for each zip
             for (int i=0; i < splitMsg.length-1; i+=2){
-                separate zip and count from split message into separate variables
+                //separate zip and count from split message into separate variables
                 Integer zip = Integer.parseInt(splitMsg[i]);
                 Integer newCount = Integer.parseInt(splitMsg[i+1]);
 
@@ -59,6 +59,8 @@ public class OutputSubscriber implements InMemoryBroker.Subscriber {
             //Send alert list and count to API for RTR functions
             API.alertZipList = alertZipList.stream().mapToInt(Integer::intValue).toArray();
             API.numAlertedZips = alertZipList.size();
+            
+            
 
         } catch(Exception ex) {
             ex.printStackTrace();
