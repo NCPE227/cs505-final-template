@@ -2,7 +2,7 @@ package cs505finaltemplate.Topics;
 
 import java.util.List;
 
-public class HospitalStatus {
+public class HospitalStatusData {
 
     public int in_patient_count;
     public float in_patient_vax; //decimal percentage of vaccinated in-patients
@@ -12,7 +12,7 @@ public class HospitalStatus {
     public float patient_vent_vax; //decimal percentage of vaccinated vent patients
 
 
-    public  HospitalStatus() {
+    public  HospitalStatusData() {
         in_patient_count = 0;
         in_patient_vax = 0f;
         icu_patient_count = 0;
