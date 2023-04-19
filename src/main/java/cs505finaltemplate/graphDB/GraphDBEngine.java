@@ -480,7 +480,7 @@ public class GraphDBEngine {
     }    
 
     //Get patient status of all hospitals 
-    public HospitalStatusData getPatientStatus() {
+    public static HospitalStatusData getPatientStatus() {
         
         try {
             //Make connection with database
@@ -516,7 +516,7 @@ public class GraphDBEngine {
     }
 
     //Get patient status of a particular location
-    public HospitalStatusData getPatientStatusByHospitalID(Integer hospital_id) {
+    public static HospitalStatusData getPatientStatusByHospitalID(Integer hospital_id) {
         try {   
             //Make connection with database
             OrientDB orient = new OrientDB("remote:localhost", "root", "rootpwd", OrientDBConfig.defaultConfig());
