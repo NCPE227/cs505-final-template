@@ -83,6 +83,7 @@ public class API {
     }
 
 
+    //Resets the whole database
     @GET
     @Path("/reset")
     @Produces(MediaType.APPLICATION_JSON)
@@ -110,9 +111,7 @@ public class API {
 
     
     public static int[] alertZipList; //this is populated in OutputSubscriber.java
-    /*
-     *  Get a zipped list of all zipcodes currently experiencing alert status.
-     */
+    //Get a zipped list of all zipcodes currently experiencing alert status.
     @GET
     @Path("/zipalertlist")
     @Produces(MediaType.APPLICATION_JSON)
@@ -136,9 +135,7 @@ public class API {
 
 
     public static Integer numAlertedZips = 0; //this is populated in OutputSubscriber.java
-    /*
-     *  Set reset code so that the database tables can be dropped and recreated.
-     */
+    //Set reset code so that the database tables can be dropped and recreated.
     @GET
     @Path("/alertlist")
     @Produces(MediaType.APPLICATION_JSON)
@@ -167,7 +164,7 @@ public class API {
     }
 
     /*
-     *  Accepts patient mrn and finds possible contacts
+     *  Accepts patient mrn and finds confirmed contacts
      */
     @GET
     @Path("/getconfirmedcontacts/{mrn}")
@@ -196,7 +193,7 @@ public class API {
     }
 
     /*
-     *  Accepts patient mrn and finds possible contacts
+     *  Accepts patient mrn and finds possible contacts by checking common events
      */
     @GET
     @Path("/getpossiblecontacts/{mrn}")

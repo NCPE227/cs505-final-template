@@ -55,7 +55,7 @@ public class GraphDBEngine {
             if (temp.isPresent())
                 patientVertex = updatePatient(patient, temp.get());
             else
-                patientVertex = createPatient(db, patient.patient_mrn, patient.patient_name, );
+                patientVertex = createPatient(db, patient);
 
             addVaccinationToPatient(db, patient, patientVertex); //creates vaccination vertices and edges as needed to conenct patient vertices
             addContactsToPatient(db, patient, patientVertex); //creates contact vertices and edges as needed to connect patient vertices
@@ -143,14 +143,14 @@ public class GraphDBEngine {
         edge.save();
     }
 
-    //Accepts a hospital data object and a patient vertex and builds an edge between then patient and hospital
+    //Accepts a vaccination data object and a patient vertex and builds an edge between then patient and vaccination site
     private static void addVaccinationToPatient(ODatabaseSession db, VaccinationData data, OVertex patient) {
-        Optional<OVertex> tempVaccination = getHospitalByID(db, data.vaccination_id); //adds the hospital to the database
+        Optional<OVertex> tempVaccination = getVaccinationByID(db, data.vaccination_id); //adds the hospital to the database
         OVertex vaccination = null; //create a null vertex to populate with the hospital's data
         
         if (tempVaccination.isPresent()) //if the hospital exists, then we simply get the relevant information
             vaccination = tempVaccination.get();
-        else                         //if the hospital does not exist, we create a new one using the information in the Hospital object
+        else                             //if the hospital does not exist, we create a new one using the information in the Hospital object
             vaccination = createVaccination(db, data.vaccination_id);
 
         //Draw an edge between a patient and a hospital
@@ -158,21 +158,21 @@ public class GraphDBEngine {
         edge.save();
     }
 
-    //Accepts a vaccination data object and a patient vertex and updates the patient with vaccination information
-    private static void updatePatientVaccines(ODatabaseSession db, VaccinationData data, OVertex patient) {
+    //Accepts a patient data object and a patient vertex and draws an edge betwen the two, or builds a vertex as needed
+    private static void addVaccinationToPatient(ODatabaseSession db, PatientData patient, OVertex patientVertex) {
+        
         //Add vaccination facility to database
-        Optional<OVertex> newFacility = getHospitalByID(db, data.vaccination_id);
-        OVertex facility = null;
+        Optional<OVertex> tempVaccination = getVaccinationByID(db, patient.testing_id);
+        OVertex vaccination = null;
 
-        if (newFacility.isPresent()) //if the vaccination facility exists, then we simply get the relevant information
-            facility = newFacility.get();
+        if (tempVaccination.isPresent()) //if the vaccination facility exists, then we simply get the relevant information
+            vaccination = tempVaccination.get();
         else                         //if the vaccination facility does not exist, we create a new one using the information in the Vaccination object
-            facility = createVaccination(db, data.vaccination_id, data.patient_mrn, data.patient_name);
+            vaccination = createVaccination(db, patient.testing_id);
 
-        //Update patient with vaccination information
-        patient.setProperty("patient_mrn", data.patient_mrn);
-        patient.setProperty("vaccination_type", data.patient_name);
-        patient.addEdge(facility, "patient_to_vaccination_facility");
+        //Draw an edge between a patient and a vaccine facility
+        OEdge edge = patientVertex.addEdge(vaccination, "patient_to_vaccination");
+        edge.save();
     }
 
     //Updates a patient vertex with data derived from a PatientData object
@@ -245,6 +245,7 @@ public class GraphDBEngine {
         }
     }
 
+    //DEFUNCT silly way to do things, but leaving as it might be useful somewhere down the line
     //Takes a database session and creates a patient using inputs to fill in the Vertex.
     private static OVertex createPatient(ODatabaseSession db, Integer testing_id, String patient_name, String patient_mrn, Boolean patient_status) {
         OVertex result = db.newVertex("patient");
@@ -313,6 +314,7 @@ public class GraphDBEngine {
         result.save();
         return result;
     } 
+    
     //Creates a new event vertex, does not include patient information as it will be loaded into an edge
     private static OVertex createEvent(ODatabaseSession db, String event_id) {
         OVertex result = db.newVertex("event");
@@ -477,6 +479,22 @@ public class GraphDBEngine {
         rs.close(); //close result set
 
         return hospital;
+    }
+
+    //Creates a query to select a vaccination facility by it's ID number
+    private static Optional<OVertex> getVaccinationByID(ODatabaseSession db, Integer vaccination_id) {
+        String query = "select * from vaccination where vaccination_id = ?"; //using * here is good in case there is duplicate data, might be useful for db cleansing later
+        OResultSet rs = db.query(query, vaccination_id); //make a result set out of the query results
+
+        Optional<OVertex> vaccination = Optional.empty();
+        if (rs.hasNext()) {
+            OResult result = rs.next();
+            vaccination = result.getVertex();
+        }
+
+        rs.close(); //close result set
+
+        return vaccination;
     }    
 
     //Get patient status of all hospitals 
@@ -501,7 +519,7 @@ public class GraphDBEngine {
                     patStatus.add(item.getProperty("patient_hospital_status"));
             }
             rs.close();
-            HospitalStatus result = getHospitalStatus(vaxStatus, patStatus);
+            HospitalStatusData result = getHospitalStatus(vaxStatus, patStatus);
             
             //Close the database connection 
             db.close();
@@ -511,7 +529,7 @@ public class GraphDBEngine {
         } catch (Exception ex) {
             ex.printStackTrace();
             System.out.println(ex);
-            return new HospitalStatus();
+            return new HospitalStatusData();
         }
     }
 
@@ -545,7 +563,7 @@ public class GraphDBEngine {
         } catch (Exception ex) {
             ex.printStackTrace();
             System.out.println(ex);
-            return new HospitalStatus();
+            return new HospitalStatusData();
         }
     }
 
@@ -600,7 +618,7 @@ public class GraphDBEngine {
         }
 
         //Create HospitalData object to populate with our counts
-        HospitalStatus status = new HospitalStatus();
+        HospitalStatusData status = new HospitalStatusData();
         status.in_patient_count = in_patient_count;
         status.in_patient_vax = in_vax_percentage;
         status.icu_patient_count = icu_patient_count;
