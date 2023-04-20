@@ -177,7 +177,7 @@ public class API {
             Map<String, List<String>> responseMap = new HashMap<>();
             List<String> confirmedContacts = GraphDBEngine.getConfirmedContacts(mrn);
 
-            responseMap.put("contact-list", confirmedContacts)
+            responseMap.put("contact-list", confirmedContacts);
             responseString = gson.toJson(responseMap);
 
         } catch (Exception ex) {
