@@ -37,6 +37,7 @@ public class GraphDBEngine {
         //use the orientdb dashboard to create a new database
         //see class notes for how to use the dashboard
         OrientDB orient = new OrientDB("remote:localhost", user, pass, OrientDBConfig.defaultConfig());
+        orient.create(dbName, ODatabaseType.PLOCAL);
         //orient.create(dbName, ODatabaseType.PLOCAL, OrientDBConfig.defaultConfig()); //creates a new DB
 
         //ODatabaseSession db = orient.open(dbName, user, pass, OrientDBConfig.defaultConfig());
@@ -643,7 +644,7 @@ public class GraphDBEngine {
     }
 
     //Rebuilds the database
-    private static Boolean rebuild(OrientDB client) {
+    private static Integer rebuild(OrientDB client) {
         try {
             if (client.exists(dbName)) {
                 client.drop(dbName); //if the database exists, we drop it
@@ -654,11 +655,11 @@ public class GraphDBEngine {
             build(db); //build DB
             db.close(); //close DB connection
             System.out.println("Table was created.");
-            return true;
+            return 1;
         } catch (Exception ex) {
             System.out.println(ex);
             System.out.println("There was an error.");
-            return false;
+            return 0;
         }
         
     }
@@ -744,22 +745,17 @@ public class GraphDBEngine {
 
     //Called in API to flush and rebuild the DB
     public static Integer reset() {
-        Boolean result = null; //set to a value that can't be handled so we don't have an accidental reset
+        Integer result = -1; //set to a value that can't be handled so we don't have an accidental reset
 
         try {
             OrientDB orient = new OrientDB("remote:localhost", OrientDBConfig.defaultConfig());
             result = rebuild(orient);
             orient.close();
+            
         } catch (Exception ex) {
             System.out.println(ex);
         }
-
-        if(result) {
-            return 1;
-        }
-        else {
-            return 0;
-        }
+        return result;
     }
 
 
