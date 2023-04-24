@@ -90,8 +90,8 @@ public class API {
     public Response reset() {
         String responseString = "{}";
         try {
-            
-            Integer res = GraphDBEngine.reset();
+            Integer res = -1; //default val
+            res = GraphDBEngine.reset();
             Map<String, Integer> responseMap = new HashMap<>();
             responseMap.put("reset_status_code", res);
             responseString = gson.toJson(responseMap);

@@ -758,7 +758,7 @@ public class GraphDBEngine {
             return 1;
         }
         else {
-            return 45;
+            return 0;
         }
     }
 
