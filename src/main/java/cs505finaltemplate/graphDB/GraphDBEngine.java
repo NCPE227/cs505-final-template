@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseType;
@@ -37,7 +39,7 @@ public class GraphDBEngine {
         //use the orientdb dashboard to create a new database
         //see class notes for how to use the dashboard
         OrientDB orient = new OrientDB("remote:localhost", user, pass, OrientDBConfig.defaultConfig());
-        orient.create(dbName, ODatabaseType.PLOCAL);
+        //orient.create(dbName, ODatabaseType.PLOCAL);
         //orient.create(dbName, ODatabaseType.PLOCAL, OrientDBConfig.defaultConfig()); //creates a new DB
 
         //ODatabaseSession db = orient.open(dbName, user, pass, OrientDBConfig.defaultConfig());
@@ -657,7 +659,10 @@ public class GraphDBEngine {
             System.out.println("Table was created.");
             return 1;
         } catch (Exception ex) {
-            System.out.println(ex);
+            StringWriter sw = new StringWriter();
+            ex.printStackTrace(new PrintWriter(sw));
+            String exceptionAsString = sw.toString();
+            ex.printStackTrace();
             System.out.println("There was an error.");
             return 0;
         }
@@ -748,7 +753,7 @@ public class GraphDBEngine {
         Integer result = -1; //set to a value that can't be handled so we don't have an accidental reset
 
         try {
-            OrientDB orient = new OrientDB("remote:localhost", OrientDBConfig.defaultConfig());
+            OrientDB orient = new OrientDB("remote:localhost", user, pass, OrientDBConfig.defaultConfig());
             result = rebuild(orient);
             orient.close();
             
