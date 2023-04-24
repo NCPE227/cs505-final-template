@@ -227,7 +227,16 @@ public class API {
        String responseString = "{}";
         try {
             HospitalStatusData dataObj = GraphDBEngine.getPatientStatusByHospitalID(hospital_id);
-            responseString = gson.toJson(dataObj);
+
+            Map<String, Float> responseMap = new HashMap<>();
+            responseMap.put("in_patient_count", (float) dataObj.in_patient_count);
+            responseMap.put("in_patient_vax", dataObj.in_patient_vax);
+            responseMap.put("in_patient_count", (float) dataObj.icu_patient_count);
+            responseMap.put("in_patient_vax", dataObj.icu_patient_vax);
+            responseMap.put("patient_vent_count", (float) dataObj.patient_vent_count);
+            responseMap.put("patient_vent_vax", dataObj.patient_vent_vax);
+
+            responseString = gson.toJson(responseMap);
             System.out.println(responseString);
 
         } catch (Exception ex) {
@@ -249,8 +258,18 @@ public class API {
         String responseString = "{}";
         try {
             HospitalStatusData dataObj = GraphDBEngine.getPatientStatus();
-            responseString = gson.toJson(dataObj);
+
+            Map<String, Float> responseMap = new HashMap<>();
+            responseMap.put("in_patient_count", (float) dataObj.in_patient_count);
+            responseMap.put("in_patient_vax", dataObj.in_patient_vax);
+            responseMap.put("in_patient_count", (float) dataObj.icu_patient_count);
+            responseMap.put("in_patient_vax", dataObj.icu_patient_vax);
+            responseMap.put("patient_vent_count", (float) dataObj.patient_vent_count);
+            responseMap.put("patient_vent_vax", dataObj.patient_vent_vax);
+            
+            responseString = gson.toJson(responseMap);
             System.out.println(responseString);
+    
         } catch (Exception ex) {
             StringWriter sw = new StringWriter();
             ex.printStackTrace(new PrintWriter(sw));
