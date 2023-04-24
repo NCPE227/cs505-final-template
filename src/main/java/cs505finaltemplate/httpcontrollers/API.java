@@ -91,9 +91,9 @@ public class API {
         String responseString = "{}";
         try {
             
-            int result = GraphDBEngine.reset();
-            Map<String,Integer> responseMap = new HashMap<>();
-            responseMap.put("reset_status_code", result);
+            Integer res = GraphDBEngine.reset();
+            Map<String, Integer> responseMap = new HashMap<>();
+            responseMap.put("reset_status_code", res);
             responseString = gson.toJson(responseMap);
 
         } catch (Exception ex) {

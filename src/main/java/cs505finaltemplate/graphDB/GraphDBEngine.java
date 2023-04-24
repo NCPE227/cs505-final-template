@@ -36,12 +36,17 @@ public class GraphDBEngine {
 
         //use the orientdb dashboard to create a new database
         //see class notes for how to use the dashboard
-        //OrientDB client = new OrientDB("remote:localhost", user, pass, OrientDBConfig.defaultConfig());
+        OrientDB orient = new OrientDB("remote:localhost", user, pass, OrientDBConfig.defaultConfig());
+        //orient.create(dbName, ODatabaseType.PLOCAL, OrientDBConfig.defaultConfig()); //creates a new DB
+
+        //ODatabaseSession db = orient.open(dbName, user, pass, OrientDBConfig.defaultConfig());
 
         // Reset database and start new one
-        //resetDB(client);
-        //client.close();
-
+        rebuild(orient);
+        //build(db);
+        System.out.println("Database has been built.");
+        //db.close();
+        orient.close();
     }
 
     //Will take patient data and set up the graphDB appropriately, making vertices for provided information and drawing edges between them
@@ -638,20 +643,22 @@ public class GraphDBEngine {
     }
 
     //Rebuilds the database
-    private static int rebuild(OrientDB client) {
+    private static Boolean rebuild(OrientDB client) {
         try {
             if (client.exists(dbName)) {
                 client.drop(dbName); //if the database exists, we drop it
                 System.out.println(dbName + " has been dropped. It will now be reset.");
             }
-            client.create(dbName, ODatabaseType.PLOCAL, OrientDBConfig.defaultConfig()); //creates a new DB
+            client.create(dbName, ODatabaseType.PLOCAL); //creates a new DB
             ODatabaseSession db = client.open(dbName, user, pass, OrientDBConfig.defaultConfig()); //open DB session
             build(db); //build DB
             db.close(); //close DB connection
-            return 1;
+            System.out.println("Table was created.");
+            return true;
         } catch (Exception ex) {
             System.out.println(ex);
-            return 0;
+            System.out.println("There was an error.");
+            return false;
         }
         
     }
@@ -736,8 +743,8 @@ public class GraphDBEngine {
     }
 
     //Called in API to flush and rebuild the DB
-    public static int reset() {
-        int result = -1; //set to a value that can't be handled so we don't have an accidental reset
+    public static Integer reset() {
+        Boolean result = null; //set to a value that can't be handled so we don't have an accidental reset
 
         try {
             OrientDB orient = new OrientDB("remote:localhost", OrientDBConfig.defaultConfig());
@@ -746,7 +753,13 @@ public class GraphDBEngine {
         } catch (Exception ex) {
             System.out.println(ex);
         }
-        return result;
+
+        if(result) {
+            return 1;
+        }
+        else {
+            return 45;
+        }
     }
 
 

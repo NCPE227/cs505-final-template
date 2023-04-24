@@ -20,7 +20,7 @@ public class Launcher {
     public static String inputStreamName;
     public static CEPEngine cepEngine;
     public static TopicConnector topicConnector;
-    public static final int WEB_PORT = 8082;
+    public static final int WEB_PORT = 9999; //8082
 
     public static String lastCEPOutput = "{}";
 
