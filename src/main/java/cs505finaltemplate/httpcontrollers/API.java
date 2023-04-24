@@ -229,10 +229,10 @@ public class API {
             HospitalStatusData dataObj = GraphDBEngine.getPatientStatusByHospitalID(hospital_id);
 
             Map<String, Float> responseMap = new HashMap<>();
-            responseMap.put("in_patient_count", (float) dataObj.in_patient_count);
-            responseMap.put("in_patient_vax", dataObj.in_patient_vax);
-            responseMap.put("in_patient_count", (float) dataObj.icu_patient_count);
-            responseMap.put("in_patient_vax", dataObj.icu_patient_vax);
+            responseMap.put("in-patient_count", (float) dataObj.in_patient_count);
+            responseMap.put("in-patient_vax", dataObj.in_patient_vax);
+            responseMap.put("in-patient_count", (float) dataObj.icu_patient_count);
+            responseMap.put("in-patient_vax", dataObj.icu_patient_vax);
             responseMap.put("patient_vent_count", (float) dataObj.patient_vent_count);
             responseMap.put("patient_vent_vax", dataObj.patient_vent_vax);
 
@@ -260,10 +260,10 @@ public class API {
             HospitalStatusData dataObj = GraphDBEngine.getPatientStatus();
 
             Map<String, Float> responseMap = new HashMap<>();
-            responseMap.put("in_patient_count", (float) dataObj.in_patient_count);
-            responseMap.put("in_patient_vax", dataObj.in_patient_vax);
-            responseMap.put("in_patient_count", (float) dataObj.icu_patient_count);
-            responseMap.put("in_patient_vax", dataObj.icu_patient_vax);
+            responseMap.put("in-patient_count", (float) dataObj.in_patient_count);
+            responseMap.put("in-patient_vax", dataObj.in_patient_vax);
+            responseMap.put("in-patient_count", (float) dataObj.icu_patient_count);
+            responseMap.put("in-patient_vax", dataObj.icu_patient_vax);
             responseMap.put("patient_vent_count", (float) dataObj.patient_vent_count);
             responseMap.put("patient_vent_vax", dataObj.patient_vent_vax);
             
